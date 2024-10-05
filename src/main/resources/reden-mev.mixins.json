@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "com.minemev.redenmev.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"malilib.IMixinGuiListBase",
+		"malilib.IMixinWidgetListBase",
+		"malilib.MixinGuiSchematicLoad"  // No olvides incluir este mixin también.
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

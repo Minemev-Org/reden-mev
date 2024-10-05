@@ -1,0 +1,50 @@
+{
+	"schemaVersion": 1,
+	"id": "reden-mev",
+	"version": "${version}",
+	"name": "reden-mev",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Dalinnar", "Bluestone"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/reden-mev/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "com.minemev.redenmev.Redenmev",
+				"adapter": "kotlin"
+			}
+		],"client": [
+			{
+				"value": "com.minemev.redenmev.RedenmevClient",
+				"adapter": "kotlin"
+			}
+		],
+		"fabric-datagen": [
+			{
+				"value": "com.minemev.redenmev.RedenmevDataGenerator",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"reden-mev.mixins.json"
+
+	],
+	"depends": {
+		"fabricloader": ">=0.16.5",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

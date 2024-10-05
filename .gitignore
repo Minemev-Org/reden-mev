@@ -1,0 +1,57 @@
+# Gradle
+.gradle/
+build/
+out/
+classes/
+.gradle/**/build/
+*.lock
+
+# Eclipse
+*.launch
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VSCode
+.settings/
+.vscode/
+bin/
+.classpath
+.project
+
+# macOS
+*.DS_Store
+Thumbs.db
+
+# Logs y archivos temporales del sistema
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Fabric Mod Loader
+run/
+.cache/
+.externalBuildConfig/
+.minecraft/
+
+# Librerías locales generadas
+libraries/
+
+# Crash reports y carpetas de depuración de Minecraft
+crash-reports/
+debug/
+
+# Archivos específicos de Java
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
+
+# Ignorar carpetas de ejecución
+out/
+build/

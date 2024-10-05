@@ -1,0 +1,116 @@
+plugins {
+	id 'fabric-loom' version '1.7-SNAPSHOT'
+	id 'maven-publish'
+	id "org.jetbrains.kotlin.jvm" version "2.0.20"
+	id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.0' // O la versión de Kotlin que estás utilizando
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral()
+	maven { url = uri("https://masa.dy.fi/maven") }
+	maven { url = uri("https://maven.wispforest.io") }
+	maven { url = uri("https://maven.terraformersmc.com/releases/") }
+	maven { url = uri("https://cursemaven.com") }
+	maven { url = uri("https://api.modrinth.com/maven") }
+	maven { url = uri("https://jitpack.io") }
+}
+
+
+fabricApi {
+	configureDataGeneration()
+}
+
+dependencies {
+	minecraft("com.mojang:minecraft:${minecraft_version}")
+	mappings("net.fabricmc:yarn:${yarn_mappings}:v2")
+	modImplementation("net.fabricmc:fabric-loader:${loader_version}")
+
+	// Fabric API
+	modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
+
+	// Kotlin language support
+	modImplementation("net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0")
+
+	// Owo Library
+	modImplementation("io.wispforest:owo-lib:${owo_version}")
+
+	modImplementation("carpet:fabric-carpet:1.21-1.4.147+v240613")
+	modImplementation("io.wispforest:owo-lib:${owo_version}")
+	modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
+
+	// Malilib for UI components
+	modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
+
+	// CommonMark for Markdown parsing
+	implementation("org.commonmark:commonmark:0.22.0")
+
+	// OkHttp for HTTP requests
+	implementation("com.squareup.okhttp3:okhttp:4.11.0")
+	implementation("io.github.spair:imgui-java-binding:${imgui_version}")
+
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
+
+	// Optional dependencies (if applicable)
+	modImplementation("com.github.sakura-ryoko:litematica:8e285513a6")
+	modImplementation("com.github.sakura-ryoko:tweakeroo:36a640f2c6")
+	modImplementation("com.terraformersmc:modmenu:11.0.1")
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+	kotlinOptions {
+		jvmTarget = 21
+	}
+}
+
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}"}
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
+
+	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+	repositories {
+		// Add repositories to publish to here.
+		// Notice: This block does NOT have the same function as the block in the top level.
+		// The repositories here will be used for publishing your artifact, not for
+		// retrieving dependencies.
+	}
+}
