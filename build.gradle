@@ -43,17 +43,17 @@ dependencies {
 	modImplementation("net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0")
 	modImplementation("io.wispforest:owo-lib:${owo_version}")
 	modImplementation("carpet:fabric-carpet:1.21-1.4.147+v240613")
-	modImplementation("io.wispforest:owo-lib:${owo_version}")
-	modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
 	modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
 	modImplementation("com.github.sakura-ryoko:litematica:8e285513a6")
 	modImplementation("com.github.sakura-ryoko:tweakeroo:36a640f2c6")
 	modImplementation("com.terraformersmc:modmenu:11.0.1")
 
-	implementation("org.commonmark:commonmark:0.22.0")
-	implementation("com.squareup.okhttp3:okhttp:4.11.0")
-	implementation("io.github.spair:imgui-java-binding:${imgui_version}")
-	implementation("org.sejda.imageio:webp-imageio:0.1.6")
+	include(implementation("org.commonmark:commonmark:0.22.0"))
+	include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))
+	include(implementation("com.squareup.okio:okio-jvm:3.2.0"))
+	include(implementation("io.github.spair:imgui-java-binding:${imgui_version}"))
+	include(implementation("org.sejda.imageio:webp-imageio:0.1.6"))
+	include(implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0"))
 
 
 }

@@ -62,7 +62,7 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
     )
 
     inner class PostComponent(val mev: MevItem, val isLast: Boolean) :
-        FlowLayout(Sizing.fill(98), Sizing.fixed(44), Algorithm.HORIZONTAL) {
+        FlowLayout(Sizing.fill(98), Sizing.fixed(45), Algorithm.HORIZONTAL) {
         private val nameLabel = Components.label(Text.literal(mev.post_name))
 
         init {
@@ -98,7 +98,7 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             if (mev.images.isNotEmpty()) {
                 val size = screen.client!!.options.guiScale.value * 40 * 2
                 TextureStorage.getImage("https://www.minemev.com/api/preview/${mev.uuid}?size=$size") {
-                    val imageContainer = Containers.verticalFlow(Sizing.fixed(40), Sizing.fixed(40)).apply {
+                    val imageContainer = Containers.verticalFlow(Sizing.fixed(41), Sizing.fixed(41)).apply {
                         surface(Surface.flat(0x20FFFFFF).and(Surface.outline(0x80FFFFFF.toInt()))) // Aplica el Surface aquí
                         padding(Insets.of(1))
                         child(WebTextureComponent(it, 0, 0, 40, 40))
