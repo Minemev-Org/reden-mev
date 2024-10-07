@@ -5,7 +5,7 @@
 	"mixins": [
 		"malilib.IMixinGuiListBase",
 		"malilib.IMixinWidgetListBase",
-		"malilib.MixinGuiSchematicLoad"  // No olvides incluir este mixin también.
+		"malilib.MixinGuiSchematicLoad"
 	],
 	"injectors": {
 		"defaultRequire": 1

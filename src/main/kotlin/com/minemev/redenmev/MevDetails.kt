@@ -1,8 +1,5 @@
 package com.minemev.redenmev
 
-
-
-
 import com.minemev.gui.WebTextureComponent
 import com.minemev.redenmev.mixin.malilib.IMixinGuiListBase
 import fi.dy.masa.litematica.gui.GuiSchematicLoad
@@ -38,10 +35,6 @@ import java.nio.file.Path
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import kotlin.io.path.*
-
-
-
-
 
 class MevDetails(
     horizontalSizing: Sizing,
@@ -323,18 +316,9 @@ class MevDetails(
         private val file: FileItem
     ) : HoverLabelComponent(getLabel(file, false), getLabel(file, true)) {
         companion object {
-            private fun getUniqueFilename(file: FileItem, parent: Path): Path {
-
+            private fun getUniqueFilename(file: FileItem, parent: Path, extension: String? = null): Path {
                 val extensionFromUrl = file.url.substringAfterLast('.', "")
-                val extension = if (file.file_type == "litematic") {
-                    if (extensionFromUrl == "zip") {
-                        ".zip"
-                    } else {
-                        "." + extensionFromUrl
-                    }
-                } else {
-                    "." + mapOf("world_download" to "zip").getOrDefault(file.file_type, file.file_type)
-                }
+                val extension = extension ?: ".$extensionFromUrl"
 
                 val name = file.default_file_name.replace(".$extensionFromUrl", "")
                 var path = parent.resolve("$name$extension")
@@ -413,7 +397,7 @@ class MevDetails(
                 ?: error("Bad zip file: not a save")
             val prefix = levelDat.removeSuffix("level.dat")
 
-            val path = getUniqueFilename(file.copy(file_type = "unzipped"), Path("saves"))
+            val path = getUniqueFilename(file, Path("saves"), ".unzipped")
             ZipInputStream(zipPath.toFile().inputStream().buffered()).use { stream ->
                 while (true) {
                     val entry = stream.nextEntry ?: break
@@ -433,18 +417,18 @@ class MevDetails(
 
             val select = SelectWorldScreen(parentScreen)
             parentScreen.getClient()?.setScreen(select)
-//            select.levelList.levelsFuture.join()
-//            select.levelList.show(select.levelList.levelsFuture.getNow(null))
-//
-//            val entry = select.levelList.children().firstOrNull {
-//                it is WorldListWidget.WorldEntry && it.level.name == path.name
-//            }
-//            select.levelList.setSelected(entry)
-//
-//            if (entry != null) {
-//                val index = select.levelList.children().indexOf(entry)
-//                select.levelList.scrollAmount = select.levelList.getRowTop(index).toDouble() - 52
-//            }
+            select.levelList.levelsFuture.join()
+            select.levelList.show(select.levelList.levelsFuture.getNow(null))
+
+            val entry = select.levelList.children().firstOrNull {
+                it is WorldListWidget.WorldEntry && it.level.name == path.name
+            }
+            select.levelList.setSelected(entry)
+
+            if (entry != null) {
+                val index = select.levelList.children().indexOf(entry)
+                select.levelList.scrollAmount = select.levelList.getRowTop(index).toDouble() - 52
+            }
         }
 
         private fun openLitematica(path: Path) {
@@ -471,21 +455,20 @@ class MevDetails(
                 Redenmev.LOGGER.info("Unzipped files to: $unzippedPath")
 
                 // Carga la pantalla de schematics, sin buscar directamente .litematic
-                loadLitematicScreen(unzippedPath)
+                locateLitematicDir(unzippedPath)
 
             } else if (path.extension == "litematic") {
                 // Si es un archivo litematic, cargar directamente el archivo.
-                loadLitematicFromFile(path)
-
+                locateLitematicFile(path)
             } else {
                 // Si no es ni zip ni litematic, abrir la pantalla y enviar un mensaje de error
-                loadLitematicScreen(path.parent)
+                locateLitematicDir(path.parent)
                 Redenmev.LOGGER.error("Unable to open or decompress file: ${path.name}. Try doing it manually.")
                 sendErrorMessageToChat("Unable to open or decompress file: ${path.name}. Try doing it manually.")
             }
         }
 
-        private fun loadLitematicScreen(directory: Path) {
+        private fun locateLitematicDir(directory: Path) {
             val guiSchematicLoad = GuiSchematicLoad()
             guiSchematicLoad.parent = parentScreen
             parentScreen.getClient()?.setScreen(guiSchematicLoad)
@@ -497,8 +480,8 @@ class MevDetails(
             schematicBrowser.switchToDirectory(directory.toFile())
         }
 
-        private fun loadLitematicFromFile(path: Path) {
-            loadLitematicScreen(path.parent)
+        private fun locateLitematicFile(path: Path) {
+            locateLitematicDir(path.parent)
             val schematicBrowser =
                 (parentScreen.getClient()?.currentScreen as IMixinGuiListBase<DirectoryEntry, WidgetDirectoryEntry, WidgetSchematicBrowser>).`widget$reden`()
 

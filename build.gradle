@@ -12,6 +12,10 @@ base {
 	archivesName = project.archives_base_name
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/reden.accesswidener")
+}
+
 repositories {
 	mavenCentral()
 	maven { url = uri("https://masa.dy.fi/maven") }
