@@ -316,9 +316,18 @@ class MevDetails(
         private val file: FileItem
     ) : HoverLabelComponent(getLabel(file, false), getLabel(file, true)) {
         companion object {
-            private fun getUniqueFilename(file: FileItem, parent: Path, extension: String? = null): Path {
+            private fun getUniqueFilename(file: FileItem, parent: Path): Path {
+
                 val extensionFromUrl = file.url.substringAfterLast('.', "")
-                val extension = extension ?: ".$extensionFromUrl"
+                val extension = if (file.file_type == "litematic") {
+                    if (extensionFromUrl == "zip") {
+                        ".zip"
+                    } else {
+                        "." + extensionFromUrl
+                    }
+                } else {
+                    "." + mapOf("world_download" to "zip").getOrDefault(file.file_type, file.file_type)
+                }
 
                 val name = file.default_file_name.replace(".$extensionFromUrl", "")
                 var path = parent.resolve("$name$extension")
@@ -397,7 +406,7 @@ class MevDetails(
                 ?: error("Bad zip file: not a save")
             val prefix = levelDat.removeSuffix("level.dat")
 
-            val path = getUniqueFilename(file, Path("saves"), ".unzipped")
+            val path = getUniqueFilename(file.copy(file_type = "unzipped"), Path("saves"))
             ZipInputStream(zipPath.toFile().inputStream().buffered()).use { stream ->
                 while (true) {
                     val entry = stream.nextEntry ?: break
@@ -409,22 +418,19 @@ class MevDetails(
                     }
                 }
             }
-            if (parentScreen.getClient()?.networkHandler != null) {
+            if (parentScreen.client!!.networkHandler != null) {
                 GameMenuScreen(false).apply {
                     init(MinecraftClient.getInstance(), width, height)
-                }
+                }.disconnect()
             }
-
             val select = SelectWorldScreen(parentScreen)
-            parentScreen.getClient()?.setScreen(select)
+            parentScreen.client!!.setScreen(select)
             select.levelList.levelsFuture.join()
             select.levelList.show(select.levelList.levelsFuture.getNow(null))
-
             val entry = select.levelList.children().firstOrNull {
                 it is WorldListWidget.WorldEntry && it.level.name == path.name
             }
             select.levelList.setSelected(entry)
-
             if (entry != null) {
                 val index = select.levelList.children().indexOf(entry)
                 select.levelList.scrollAmount = select.levelList.getRowTop(index).toDouble() - 52
@@ -455,35 +461,38 @@ class MevDetails(
                 Redenmev.LOGGER.info("Unzipped files to: $unzippedPath")
 
                 // Carga la pantalla de schematics, sin buscar directamente .litematic
-                locateLitematicDir(unzippedPath)
+                loadLitematicScreen(unzippedPath)
 
             } else if (path.extension == "litematic") {
                 // Si es un archivo litematic, cargar directamente el archivo.
-                locateLitematicFile(path)
+                loadLitematicFromFile(path)
+
             } else {
                 // Si no es ni zip ni litematic, abrir la pantalla y enviar un mensaje de error
-                locateLitematicDir(path.parent)
+                loadLitematicScreen(path.parent)
                 Redenmev.LOGGER.error("Unable to open or decompress file: ${path.name}. Try doing it manually.")
                 sendErrorMessageToChat("Unable to open or decompress file: ${path.name}. Try doing it manually.")
             }
         }
 
-        private fun locateLitematicDir(directory: Path) {
+        private fun loadLitematicScreen(directory: Path) {
             val guiSchematicLoad = GuiSchematicLoad()
             guiSchematicLoad.parent = parentScreen
-            parentScreen.getClient()?.setScreen(guiSchematicLoad)
+            parentScreen.client!!.setScreen(guiSchematicLoad)
 
             @Suppress("UNCHECKED_CAST", "KotlinConstantConditions")
             val schematicBrowser =
-                (guiSchematicLoad as IMixinGuiListBase<DirectoryEntry, WidgetDirectoryEntry, WidgetSchematicBrowser>).`widget$reden`()
+                (guiSchematicLoad as IMixinGuiListBase<DirectoryEntry,
+                        WidgetDirectoryEntry, WidgetSchematicBrowser>).`widget$reden`()
 
             schematicBrowser.switchToDirectory(directory.toFile())
         }
 
-        private fun locateLitematicFile(path: Path) {
-            locateLitematicDir(path.parent)
+        private fun loadLitematicFromFile(path: Path) {
+            loadLitematicScreen(path.parent)
             val schematicBrowser =
-                (parentScreen.getClient()?.currentScreen as IMixinGuiListBase<DirectoryEntry, WidgetDirectoryEntry, WidgetSchematicBrowser>).`widget$reden`()
+                (parentScreen.client!!.currentScreen as IMixinGuiListBase<DirectoryEntry,
+                        WidgetDirectoryEntry, WidgetSchematicBrowser>).`widget$reden`()
 
             val entry = schematicBrowser.currentEntries.firstOrNull { it.name == path.name }
             if (entry != null) {
@@ -492,7 +501,7 @@ class MevDetails(
         }
 
         private fun sendErrorMessageToChat(message: String) {
-            parentScreen.getClient()?.player?.sendMessage(Text.literal(message), true)
+            parentScreen.client!!.player?.sendMessage(Text.literal(message),true)
         }
     }
 

@@ -96,7 +96,7 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             mev.display = this
 
             if (mev.images.isNotEmpty()) {
-                val size = screen.getClient()?.options?.guiScale?.value?.times(40)?.times(2) ?: 80 // Valor por defecto en caso de que sea null
+                val size = screen.client!!.options.guiScale.value * 40 * 2
                 TextureStorage.getImage("https://www.minemev.com/api/preview/${mev.uuid}?size=$size") {
                     val imageContainer = Containers.verticalFlow(Sizing.fixed(40), Sizing.fixed(40)).apply {
                         surface(Surface.flat(0x20FFFFFF).and(Surface.outline(0x80FFFFFF.toInt()))) // Aplica el Surface aquí
@@ -106,6 +106,8 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
 
                     this.children().first().remove()
                     this.child(0, imageContainer)
+
+
                 }
             }
         }
@@ -119,10 +121,10 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             partialTicks: Float,
             delta: Float
         ) {
-            // Verifica si el mouse está dentro del área del componente
-            val isHovering = isInBoundingBox(mouseX.toDouble(), mouseY.toDouble())
 
-            // Cambia la superficie del componente si está en hover
+            //verify if the mouse is inside the component
+            val isHovering = isInBoundingBox(mouseX.toDouble(), mouseY.toDouble())
+            //change on hovering
             if (isHovering) {
                 this.surface(Surface.flat(0x20FFFFFF).and(Surface.outline(0x80FFFFFF.toInt())))
             } else {
@@ -130,15 +132,10 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             }
 
 
-            nameLabel.text(
-                Text.literal(mev.post_name)
-                    .styled { it.withUnderline(isHovering) } // Mantiene el subrayado
-            )
 
-            // Llama al método de dibujo de la clase base
             super.draw(context, mouseX, mouseY, partialTicks, delta)
 
-            // Paginación
+            // pagination
             if (isLast && currentPage == page && page != totalPages) {
                 page++
                 doRequest()

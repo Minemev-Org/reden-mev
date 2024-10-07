@@ -7,7 +7,6 @@ import io.wispforest.owo.ui.core.Component
 import io.wispforest.owo.ui.core.OwoUIAdapter
 import io.wispforest.owo.ui.core.Sizing
 import io.wispforest.owo.ui.core.Surface
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 
 class MevScreen : BaseOwoScreen<FlowLayout>() {
@@ -17,9 +16,7 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
         rootComponent.gap(5)
         rootComponent.child(MevSearch(Sizing.fill(50), Sizing.fill(), this))
     }
-    fun getClient(): MinecraftClient? {
-        return this.client
-    }
+
 
     fun updateRight(component: Component) {
         this.uiAdapter.rootComponent.children().drop(1).forEach { it.remove() }

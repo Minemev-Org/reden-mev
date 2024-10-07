@@ -1,22 +1,17 @@
 package com.minemev.redenmev
 
 
-import com.mojang.brigadier.CommandDispatcher
+
 import net.fabricmc.api.ModInitializer
 import org.slf4j.LoggerFactory
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.MinecraftClient
-
-import net.minecraft.server.command.CommandManager.literal
-import net.minecraft.server.command.ServerCommandSource
-import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import org.jetbrains.annotations.Contract
 import org.slf4j.Logger
 
 object Redenmev : ModInitializer{
-	// Constants for mod information
+
 	const val MOD_ID = "redenmev"
 	const val MOD_NAME = "Reden MEV"
 	@JvmField val LOGGER: Logger = LoggerFactory.getLogger(MOD_NAME)
