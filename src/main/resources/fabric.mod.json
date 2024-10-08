@@ -13,8 +13,8 @@
   },
   "accessWidener": "reden.accesswidener",
   "license": "MIT",
-  "icon": "assets/reden-mev/icon.png",
-  "environment": "*",
+  "icon": "icon.png",
+  "environment": "client",
   "entrypoints": {
     "main": [
       {
