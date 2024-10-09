@@ -39,14 +39,15 @@ dependencies {
 	// Fabric API
 
 
+	modImplementation("net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}")
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
-	modImplementation("net.fabricmc:fabric-language-kotlin:1.11.0+kotlin.2.0.0")
+
 	modImplementation("io.wispforest:owo-lib:${owo_version}")
-	modImplementation("carpet:fabric-carpet:1.21-1.4.147+v240613")
-	modImplementation("com.github.sakura-ryoko:malilib:b012771deb")
-	modImplementation("com.github.sakura-ryoko:litematica:8e285513a6")
-	modImplementation("com.github.sakura-ryoko:tweakeroo:36a640f2c6")
-	modImplementation("com.terraformersmc:modmenu:11.0.1")
+	modImplementation("maven.modrinth:modmenu:${modmenu_version}")
+	modImplementation("maven.modrinth:malilib:${malilib_version}")
+	modImplementation("maven.modrinth:carpet:${carpet_version}")
+	modImplementation("maven.modrinth:litematica:${litematica_version}")
+	modImplementation("maven.modrinth:tweakeroo:${tweakeroo_version}")
 
 	include(implementation("org.commonmark:commonmark:0.22.0"))
 	include(implementation("com.squareup.okhttp3:okhttp:4.11.0"))

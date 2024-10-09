@@ -14,7 +14,7 @@ class MevScreen : BaseOwoScreen<FlowLayout>() {
     override fun build(rootComponent: FlowLayout) {
         rootComponent.surface(Surface.VANILLA_TRANSLUCENT)
         rootComponent.gap(5)
-        rootComponent.child(MevSearch(Sizing.fill(50), Sizing.fill(), this))
+        rootComponent.child(MevSearch(Sizing.fill(50), Sizing.fill(100), this))
     }
 
 

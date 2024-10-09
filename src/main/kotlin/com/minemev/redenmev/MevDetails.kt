@@ -59,13 +59,13 @@ class MevDetails(
     private val images = ArrayList<Component>(info.images.size).apply {
         for (i in 0 until info.images.size) this.add(loadingLabel)
     }
-    private val imgContainer = Containers.horizontalFlow(Sizing.fill(), Sizing.fill(50)).apply {
+    private val imgContainer = Containers.horizontalFlow(Sizing.fill(100), Sizing.fill(50)).apply {
         horizontalAlignment(HorizontalAlignment.CENTER)
     }!!
-    private val filesContainer = Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
+    private val filesContainer = Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
     }!!
     private var details: Component = Components.label(Text.of(info.description)).apply {
-        sizing(Sizing.fill(), Sizing.content())
+        sizing(Sizing.fill(100), Sizing.content())
     }!!
         set(value) {
             val index = detailsContainer.children().indexOf(field)
@@ -74,11 +74,11 @@ class MevDetails(
             detailsContainer.child(index, value)
         }
 
-    private val detailsContainer = Containers.verticalFlow(Sizing.fill(), Sizing.expand()).apply {
+    private val detailsContainer = Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
         child(Containers.collapsible(
-            Sizing.fill(), Sizing.content(), Text.literal("Details"), false
+            Sizing.fill(100), Sizing.content(), Text.literal("Details"), false
         ).apply {
-            val detailsSubContainer = Containers.verticalFlow(Sizing.fill(), Sizing.content())
+            val detailsSubContainer = Containers.verticalFlow(Sizing.fill(100), Sizing.content())
 
             if (info.tags.isNotEmpty()) {
                 val tagsLayout = Containers.horizontalFlow(Sizing.content(), Sizing.content())
@@ -155,7 +155,7 @@ class MevDetails(
 
     private val detailsReadMore = HoverLabelComponent(
         Text.literal("Read More").formatted(Formatting.UNDERLINE),
-        Text.literal("Read More").formatted(Formatting.UNDERLINE).withColor(0x2196f3),
+        Text.literal("Read More").formatted(Formatting.UNDERLINE).formatted(Formatting.AQUA)
     ).apply {
         mouseDown()!!.subscribe { _, _, b ->
             if (b == 0) {
@@ -220,7 +220,7 @@ class MevDetails(
                     info = jsonIgnoreUnknown.decodeFromString<MevSearch.MevItem>(string)
                     client!!.execute {
                         details = Components.label(Text.of(info.description)).apply {
-                            sizing(Sizing.fill(), Sizing.content())
+                            sizing(Sizing.fill(100), Sizing.content())
                         }
                         if (details.height() + 70 < detailsContainer.height()) {
                             detailsReadMore.onMouseDown(.0, .0, 0)
@@ -235,29 +235,33 @@ class MevDetails(
                 .withHoverEvent(HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("View on minemev.com")))
         }).apply {
             margins(Insets.vertical(7))
-            horizontalSizing(Sizing.fill())
+            horizontalSizing(Sizing.fill(100))
             horizontalTextAlignment(HorizontalAlignment.CENTER)
         })
         this.child(
-            Containers.verticalScroll(Sizing.fill(), Sizing.expand(),
-                Containers.verticalFlow(Sizing.fill(), Sizing.content()).apply {
+            Containers.verticalScroll(Sizing.fill(100), Sizing.fill(100),
+                Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
                     if (info.images.isNotEmpty()) {
-                        this.child(Containers.horizontalFlow(Sizing.fill(), Sizing.content()).apply {
-                            child(btnPrev)
-                            child(imageInfoLabel)
-                            child(btnNext)
-                            horizontalAlignment(HorizontalAlignment.CENTER)
-                            verticalAlignment(VerticalAlignment.CENTER)
-                        })
+                        this.child(
+                            Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
+                                child(btnPrev)
+                                child(imageInfoLabel)
+                                child(btnNext)
+                                horizontalAlignment(HorizontalAlignment.CENTER)
+                                verticalAlignment(VerticalAlignment.CENTER)
+                            }
+                        )
+
                         info.images.mapIndexed { index, url ->
                             TextureStorage.getImage(url, {
                                 images[index] = WebTextureComponent.fixedHeight(it, 0, 0, imgContainer.height())
                             }) {
                                 images[index] = Components.label(Text.literal("Failed: ${it.message}").formatted(Formatting.RED)).apply {
-                                    sizing(Sizing.fill())
+                                    sizing(Sizing.fill(100))
                                 }
                             }
                         }
+
                         this.child(imgContainer)
                         this.child(detailsContainer)
                         this.child(detailsReadMore)
@@ -368,7 +372,7 @@ class MevDetails(
 
         init {
             margins(Insets.of(5))
-            horizontalSizing(Sizing.fill())
+            horizontalSizing(Sizing.fill(100))
             mouseDown().subscribe { _, _, b ->
                 if (b == 0) {
                     val parent = Path("schematics", "reden-downloads")

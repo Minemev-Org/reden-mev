@@ -8,11 +8,7 @@ import io.wispforest.owo.ui.core.AnimatableProperty
 import io.wispforest.owo.ui.core.OwoUIDrawContext
 import io.wispforest.owo.ui.core.PositionedRectangle
 import io.wispforest.owo.ui.core.Sizing
-import net.minecraft.client.render.BufferRenderer
-import net.minecraft.client.render.GameRenderer
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormat.DrawMode
-import net.minecraft.client.render.VertexFormats
+import net.minecraft.client.render.*
 import org.joml.Matrix4f
 import kotlin.math.min
 
@@ -104,22 +100,28 @@ open class WebTextureComponent(
         v2: Float
     ) {
         // Utilizar el método estático para establecer la textura
-        RenderSystem._setShaderTexture(0, texture.glId) // Usar 0 como índice de textura
+        RenderSystem.setShaderTexture(0, texture.glId) // Usar 0 como índice de textura
 
         // Configurar el shader para el dibujo
         RenderSystem.setShader { GameRenderer.getPositionTexProgram() }
 
         val matrix4f: Matrix4f = context.matrices.peek().positionMatrix
-        val bufferBuilder = Tessellator.getInstance().begin(DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
+
+        // Obtener el buffer builder actual
+        val tessellator = Tessellator.getInstance()
+        val bufferBuilder = tessellator.buffer
+
+        // Iniciar la creación de los vértices con la configuración actual
+        bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE)
 
         // Crear los vértices del cuadrado texturizado
-        bufferBuilder.vertex(matrix4f, x1.toFloat(), y1.toFloat(), z.toFloat()).texture(u1, v1)
-        bufferBuilder.vertex(matrix4f, x1.toFloat(), y2.toFloat(), z.toFloat()).texture(u1, v2)
-        bufferBuilder.vertex(matrix4f, x2.toFloat(), y2.toFloat(), z.toFloat()).texture(u2, v2)
-        bufferBuilder.vertex(matrix4f, x2.toFloat(), y1.toFloat(), z.toFloat()).texture(u2, v1)
+        bufferBuilder.vertex(matrix4f, x1.toFloat(), y1.toFloat(), z.toFloat()).texture(u1, v1).next()
+        bufferBuilder.vertex(matrix4f, x1.toFloat(), y2.toFloat(), z.toFloat()).texture(u1, v2).next()
+        bufferBuilder.vertex(matrix4f, x2.toFloat(), y2.toFloat(), z.toFloat()).texture(u2, v2).next()
+        bufferBuilder.vertex(matrix4f, x2.toFloat(), y1.toFloat(), z.toFloat()).texture(u2, v1).next()
 
         // Dibujar el cuadrado
-        BufferRenderer.drawWithGlobalProgram(bufferBuilder.end())
+        tessellator.draw()
     }
 
     fun resetVisibleArea(): WebTextureComponent {

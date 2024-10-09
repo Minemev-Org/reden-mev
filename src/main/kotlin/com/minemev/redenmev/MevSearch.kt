@@ -23,10 +23,10 @@ import java.io.IOException
 class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: MevScreen) :
     FlowLayout(horizontalSizing, verticalSizing, Algorithm.VERTICAL) {
     var list = mutableListOf<MevItem>()
-    val listComponent = Containers.verticalFlow(Sizing.fill(), Sizing.content())!!.apply {
+    val listComponent = Containers.verticalFlow(Sizing.fill(100), Sizing.content())!!.apply {
         horizontalAlignment(HorizontalAlignment.CENTER)
     }
-    val search = Components.textBox(Sizing.fill())!!.apply {
+    val search = Components.textBox(Sizing.fill(100))!!.apply {
         setPlaceholder(Text.literal("Search..."))
         onChanged().subscribe {
             page = 1
@@ -69,7 +69,7 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             padding(Insets.of(2))
             child(Containers.verticalFlow(Sizing.fixed(40), Sizing.fixed(40)))
             child(
-                Containers.verticalFlow(Sizing.expand(), Sizing.fixed(40)).apply {
+                Containers.verticalFlow(Sizing.content(), Sizing.fixed(40)).apply {
                     this.child(nameLabel)
                     this.child(Components.label(
                         Text.literal("by ").formatted(Formatting.WHITE)
@@ -77,8 +77,8 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
                     ))
                     this.child(Components.label(Text.literal(mev.description.replace("\n", "  ")).formatted
                         (Formatting.GRAY)).apply {
-                        lineSpacing(0)
-                        horizontalSizing(Sizing.fill())
+
+                        horizontalSizing(Sizing.fill(100))
 
                     })
                     gap(2)
@@ -89,7 +89,7 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             mouseDown().subscribe { _, _, b ->
                 if (b == 0) {
                     UISounds.playButtonSound()
-                    screen.updateRight(MevDetails(Sizing.fill(50), Sizing.fill(), screen, mev))
+                    screen.updateRight(MevDetails(Sizing.fill(50), Sizing.fill(100), screen, mev))
                     true
                 } else false
             }
@@ -193,7 +193,7 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
         this.children(
             listOf(
                 search,
-                Containers.verticalScroll(Sizing.fill(), Sizing.expand(), listComponent).apply {
+                Containers.verticalScroll(Sizing.fill(100), Sizing.fill(100), listComponent).apply {
                     scrollbar(ScrollContainer.Scrollbar.vanillaFlat())
                 }
             )

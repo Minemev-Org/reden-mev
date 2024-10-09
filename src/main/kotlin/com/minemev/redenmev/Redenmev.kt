@@ -5,6 +5,7 @@ package com.minemev.redenmev
 import net.fabricmc.api.ModInitializer
 import org.slf4j.LoggerFactory
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
+
 import net.minecraft.client.MinecraftClient
 import net.minecraft.util.Identifier
 import org.jetbrains.annotations.Contract
@@ -18,7 +19,7 @@ object Redenmev : ModInitializer{
 
 	@JvmStatic
 	@Contract("_ -> new")
-	fun identifier(id: String): Identifier {
+	fun identifier(id: String): Identifier? {
 		return Identifier.of(MOD_ID, id)
 	}
 	val client = MinecraftClient.getInstance()
