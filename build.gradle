@@ -7,10 +7,12 @@ plugins {
 
 version = project.mod_version
 group = project.maven_group
+minecraft_version = project.minecraft_version
 
 base {
 	archivesName = project.archives_base_name
 }
+
 
 loom {
 	accessWidenerPath = file("src/main/resources/reden.accesswidener")
