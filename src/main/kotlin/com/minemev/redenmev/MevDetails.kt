@@ -67,7 +67,7 @@ class MevDetails(
     private var details: Component = Components.label(Text.of(info.description)).apply {
         sizing(Sizing.fill(100), Sizing.content())
     }!!
-        set(value) {
+    set(value) {
             val index = detailsContainer.children().indexOf(field)
             field.remove()
             field = value
@@ -149,9 +149,20 @@ class MevDetails(
 
             this.child(detailsSubContainer)
         })
-        child(details)
     }!!
 
+    private val descriptionContainer = Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
+        child(Containers.collapsible(
+            Sizing.fill(100), Sizing.content(), Text.literal("Description"), false // Colapsable inicialmente cerrado
+        ).apply {
+
+            val descriptionSubContainer = Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
+                child(details)
+            }
+
+            this.child(descriptionSubContainer)
+        })
+    }
 
     private val detailsReadMore = HoverLabelComponent(
         Text.literal("Read More").formatted(Formatting.UNDERLINE),
@@ -200,17 +211,17 @@ class MevDetails(
     }!!
 
     init {
-        println(info.images.firstOrNull())
+
         httpClient.newCall(Request.Builder().apply {
             ua()
             get()
             url("https://minemev.com/api/details/${info.uuid}")
         }.build()).apply {
-            Redenmev.LOGGER.info("Started request: ${request().url}")
+
         }.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 if (e.message != "Canceled") {
-                    Redenmev.LOGGER.error("Failed request: ${call.request().url}", e)
+                    Redenmev.LOGGER.error("Failed to load the post: ${info.post_name}", e)
                 }
             }
 
@@ -239,7 +250,7 @@ class MevDetails(
             horizontalTextAlignment(HorizontalAlignment.CENTER)
         })
         this.child(
-            Containers.verticalScroll(Sizing.fill(100), Sizing.fill(100),
+            Containers.verticalScroll(Sizing.fill(100), Sizing.fill(95),
                 Containers.verticalFlow(Sizing.fill(100), Sizing.content()).apply {
                     if (info.images.isNotEmpty()) {
                         this.child(
@@ -264,7 +275,7 @@ class MevDetails(
 
                         this.child(imgContainer)
                         this.child(detailsContainer)
-                        this.child(detailsReadMore)
+                        this.child(descriptionContainer)
                         this.child(Components.label(Text.of("\nFile Downloads")))
                         this.child(filesContainer)
                         this.horizontalAlignment(HorizontalAlignment.CENTER)
@@ -279,10 +290,10 @@ class MevDetails(
             ua()
             get()
             url("https://www.minemev.com/api/files/${info.uuid}")
-        }.build()).apply {
-            Redenmev.LOGGER.info("Started request: ${request().url}")
-        }.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
+        }.build()).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Redenmev.LOGGER.error("Failed to load files on post ${info.post_name}", e)
+            }
 
             override fun onResponse(call: Call, response: Response) {
                 val fileItems = jsonIgnoreUnknown.decodeFromString<List<FileItem>>(response.body!!.use { it.string() })
@@ -291,9 +302,7 @@ class MevDetails(
                     val litematicFiles = fileItems.filter { it.file_type == "litematic" }
                     val worldDownloadFiles = fileItems.filter { it.file_type == "world_download" }
 
-
                     filesContainer.clearChildren()
-
 
                     if (litematicFiles.isNotEmpty()) {
                         filesContainer.child(Components.label(Text.of("Litematics")).color(Color.ofRgb(0x00E0FF)))
@@ -302,17 +311,22 @@ class MevDetails(
                         }
                     }
 
-
                     if (worldDownloadFiles.isNotEmpty()) {
                         filesContainer.child(Components.label(Text.of("World Downloads")).color(Color.GREEN))
                         worldDownloadFiles.forEach { file ->
                             filesContainer.child(FileComponent(parentScreen, file))
                         }
                     }
+
+                    //change the vertical sizing after all the files has loaded
+                    filesContainer.parent().apply {
+                        verticalSizing(Sizing.content())
+                    }
+
                 }
             }
         })
-        this.surface(Surface.VANILLA_TRANSLUCENT)
+
     }
 
     class FileComponent(
@@ -343,7 +357,6 @@ class MevDetails(
                         i++
                     }
                 }
-                Redenmev.LOGGER.info("returning path: $path")
                 return path
             }
 
@@ -355,14 +368,14 @@ class MevDetails(
                     it.withColor(0x2196f3)
                 })
 
-                // Añadir el nombre del archivo con estilo
+                //add the name of the file styled
                 label.append(Text.literal(file.default_file_name).styled {
                     (if (hover) {
                         it.withColor(0x2196f3)
                     } else it).withUnderline(true)
                 })
 
-                // Añadir la cantidad de descargas
+                // add ammount of downloads
                 label.append(" ")
                 label.append(Text.literal("${file.downloads} Downloads").formatted(Formatting.GRAY))
 
@@ -382,10 +395,7 @@ class MevDetails(
                         ua()
                         get()
                         url(file.url)
-                    }.build()).apply {
-                        Redenmev.LOGGER.info("Started request: ${request().url}")
-                    }.execute().body!!.use {
-                        Redenmev.LOGGER.info("trying to save file on path: ${path}")
+                    }.build()).execute().body!!.use {
                         path.writeBytes(it.bytes())
                     }
                     runCatching {
@@ -462,8 +472,6 @@ class MevDetails(
                 }
 
                 val unzippedPath = unzipDir
-                Redenmev.LOGGER.info("Unzipped files to: $unzippedPath")
-
                 // Carga la pantalla de schematics, sin buscar directamente .litematic
                 loadLitematicScreen(unzippedPath)
 
@@ -511,6 +519,9 @@ class MevDetails(
 
     override fun draw(context: OwoUIDrawContext?, mouseX: Int, mouseY: Int, partialTicks: Float, delta: Float) {
         imgContainer.child(0, images[imgId - 1])
+        imgContainer.surface(Surface.flat(0x20FFFFFF).and(Surface.outline(0x80FFFFFF.toInt())))
+        imgContainer.padding(Insets.of(2))
+
         while (imgContainer.children().size > 1) {
             imgContainer.removeChild(imgContainer.children()[1])
         }

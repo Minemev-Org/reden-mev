@@ -21,13 +21,7 @@ object TextureStorage {
 
     fun getImage(url: String, action: (WebTexture) -> Unit, failed: (Throwable) -> Unit) {
         MinecraftClient.getInstance().execute {
-//            if (url in cache && !DEBUG_MINENV_NO_CACHE.booleanValue) {
-//                cache[url]!!.onSuccess(action).onFailure(failed)
-//                return@execute
-//            }
-
             httpClient.newCall(Request.Builder().apply {
-                Redenmev.LOGGER.info("Started getting image: $url")
                 ua()
                 get()
                 url(url)

@@ -2,6 +2,7 @@ package com.minemev.redenmev
 
 
 import com.minemev.gui.WebTextureComponent
+import com.minemev.redenmev.Redenmev.client
 import io.wispforest.owo.ui.component.Components
 import io.wispforest.owo.ui.container.Containers
 import io.wispforest.owo.ui.container.FlowLayout
@@ -12,6 +13,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.minecraft.client.MinecraftClient
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import okhttp3.Call
@@ -75,11 +77,32 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
                         Text.literal("by ").formatted(Formatting.WHITE)
                             .append(Text.literal(mev.User).formatted(Formatting.GOLD))
                     ))
-                    this.child(Components.label(Text.literal(mev.description.replace("\n", "  ")).formatted
-                        (Formatting.GRAY)).apply {
+                    this.child(Containers.horizontalFlow(Sizing.fill(100), Sizing.content()).apply {
+                        mev.tags.forEach { tag ->
+                            child(Components.label(Text.literal(tag).formatted(Formatting.GRAY)).apply {
+                                horizontalSizing(Sizing.content())
+                                gap(4)
 
-                        horizontalSizing(Sizing.fill(100))
+                                mouseDown()!!.subscribe { _, _, b ->
+                                    if (b == 0) {
+                                        search.text(tag)
+                                    }
+                                    true
+                                }
 
+                                // Añadir mouseEnter para cambiar el estilo
+                                mouseEnter()!!.subscribe {
+                                    this.text(Text.literal(tag).formatted(Formatting.AQUA, Formatting.UNDERLINE))
+                                    tooltip(Text.literal("Search ${tag} Tag"))
+                                }
+
+                                // Añadir mouseExit para restaurar el estilo original
+                                mouseLeave()!!.subscribe {
+                                    this.text(Text.literal(tag).formatted(Formatting.GRAY))
+                                    tooltip(null)
+                                }
+                            })
+                        }
                     })
                     gap(2)
                 }
@@ -149,12 +172,10 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             ua()
             get()
             url("https://minemev.com/api/search?search=${search.text}&page=$page")
-        }.build()).apply {
-            Redenmev.LOGGER.info("Started request: ${request().url}")
-        }.enqueue(object : Callback {
+        }.build()).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 if (e.message != "Canceled") {
-                    Redenmev.LOGGER.error("Failed request: ${call.request().url}", e)
+                    Redenmev.LOGGER.error("Failed making a search: ${search.text}", e)
                 }
             }
 
@@ -188,13 +209,14 @@ class MevSearch(horizontalSizing: Sizing, verticalSizing: Sizing, val screen: Me
             Components.label(Text.literal("Loading content..."))
         )
         doRequest()
-        this.surface(Surface.VANILLA_TRANSLUCENT)
+
         this.horizontalAlignment(HorizontalAlignment.CENTER)
         this.children(
             listOf(
                 search,
-                Containers.verticalScroll(Sizing.fill(100), Sizing.fill(100), listComponent).apply {
+                Containers.verticalScroll(Sizing.fill(100), Sizing.fill(95), listComponent).apply {
                     scrollbar(ScrollContainer.Scrollbar.vanillaFlat())
+
                 }
             )
         )
